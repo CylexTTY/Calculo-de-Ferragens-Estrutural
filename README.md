@@ -1,6 +1,6 @@
 # Calculo-de-Ferragens-Estrutural
 
-[![GitHub deployments](https://img.shields.io/github/deployments/CylexTTY/Calculo-de-Ferragens-Estrutural//github-pages?label=Deployment)](https://cylextty.github.io/Calculo-de-Ferragens-Estrutural/)
+[![GitHub deployments](https://img.shields.io/github/deployments/CylexTTY/Calculo-de-Ferragens-Estrutural/github-pages?label=Deployment)](https://cylextty.github.io/Calculo-de-Ferragens-Estrutural/)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://cylextty.github.io/Calculo-de-Ferragens-Estrutural/)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
@@ -55,7 +55,7 @@ Acesse diretamente pela versão hospedada:
 ### Instalação Local
 ```bash
 # Clone o repositório
-git clone https://github.com/CylexTTY/Calculo-de-Ferragens.git
+git clone https://github.com/CylexTTY/Calculo-de-Ferragens-Estrutural.git
 
 # Acesse o diretório
 cd Calculo-de-Ferragens
