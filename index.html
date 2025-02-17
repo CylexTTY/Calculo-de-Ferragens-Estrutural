@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Estrutural | Colunas e Sapatas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --background: #f8fafc;
+      --card-border: #e2e8f0;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+    }
+    .navbar-brand {
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    .main-card {
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .card-header {
+      background: var(--primary);
+      color: white;
+      padding: 1.2rem 1.5rem;
+    }
+    .nav-pills .nav-link {
+      font-weight: 500;
+      color: #64748b;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .nav-pills .nav-link.active {
+      background: var(--primary) !important;
+      color: white !important;
+    }
+    .form-label {
+      font-weight: 500;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+    .form-control, .form-select {
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--card-border);
+    }
+    .form-control:focus, .form-select:focus {
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .resultado-box {
+      background: white;
+      border: 2px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+      white-space: pre-wrap;
+    }
+    .summary-highlight {
+      background: #f1f5f9;
+      border-left: 4px solid var(--primary);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    .form-check-input:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 15px;
+      }
+      .card-header h4 {
+        font-size: 1.2rem;
+      }
+    }
+    /* Estilo para o botão de copiar */
+    .copy-btn {
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar Simplificada -->
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--primary);">
+    <div class="container">
+      <a class="navbar-brand" href="#">Calculadora Estrutural</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Conteúdo Principal -->
+  <div class="container my-5">
+    <h2 class="text-center mb-4 fw-semibold">Cálculo de Materiais para Estruturas</h2>
+    
+    <!-- Abas de Navegação -->
+    <ul class="nav nav-pills justify-content-center gap-2 mb-5" id="calcTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="coluna-tab" data-bs-toggle="tab" data-bs-target="#coluna" type="button">
+          <i class="bi bi-columns-gap me-2"></i>Coluna
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="sapata-tab" data-bs-toggle="tab" data-bs-target="#sapata" type="button">
+          <i class="bi bi-square-fill me-2"></i>Sapata
+        </button>
+      </li>
+    </ul>
+
+    <!-- Conteúdo das Abas -->
+    <div class="tab-content">
+      <!-- Aba Coluna -->
+      <div class="tab-pane fade show active" id="coluna">
+        <div class="main-card">
+          <div class="card-header">
+            <h4 class="mb-0">Parâmetros da Coluna</h4>
+          </div>
+          <div class="card-body p-4">
+            <form id="formColuna" class="row g-4">
+              <!-- Seção Ferro Principal -->
+              <div class="col-md-6">
+                <label class="form-label">Ferro Principal</label>
+                <select class="form-select" id="tipoFerroColuna" required>
+                  <option value="1/2">1/2"</option>
+                  <option value="3/8" selected>3/8" (Padrão)</option>
+                  <option value="5/16">5/16"</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Quantidade de Ferros</label>
+                <select class="form-select" id="numFerroColuna" required>
+                  <option value="4" selected>4 unidades</option>
+                  <option value="6">6 unidades</option>
+                </select>
+              </div>
+              <!-- Seção Adicionais -->
+              <div class="col-12" id="bitolaAdicionalContainer" style="display: none;">
+                <div class="border p-3 rounded-2">
+                  <label class="form-label">Ferros Adicionais</label>
+                  <select class="form-select" id="bitolaAdicional">
+                    <option value="1/2">1/2"</option>
+                    <option value="3/8" selected>3/8"</option>
+                    <option value="5/16">5/16"</option>
+                  </select>
+                  <small class="text-muted">Bitola para os 2 ferros adicionais</small>
+                </div>
+              </div>
+              <!-- Seção Cavaletes -->
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="adicionarCavaletes">
+                  <label class="form-check-label">Adicionar Cavaletes</label>
+                </div>
+                <div class="mt-2" id="cavaletesContainer" style="display: none;">
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <select class="form-select" id="tipoCavalete">
+                        <option value="5/16">5/16"</option>
+                        <option value="1/4">1/4"</option>
+                        <option value="3/8">3/8"</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <select class="form-select" id="qtdCavaletes">
+                        <option value="1">1 Cavalete</option>
+                        <option value="2" selected>2 Cavaletes</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Seção Medidas -->
+              <div class="col-md-6">
+                <label class="form-label">Dimensão 1 (cm)</label>
+                <input type="number" class="form-control" id="medida1" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Dimensão 2 (cm)</label>
+                <input type="number" class="form-control" id="medida2" required>
+              </div>
+              <!-- Seção Estribos -->
+              <div class="col-md-6">
+                <label class="form-label">Ferro para Estribos</label>
+                <select class="form-select" id="tipoFerroEstribo">
+                  <option value="3/16" selected>3/16"</option>
+                  <option value="5/16">5/16"</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Espaçamento dos Estribos</label>
+                <select class="form-select" id="espacamentoEstribos">
+                  <option value="30" selected>30 cm</option>
+                  <option value="20">20 cm</option>
+                  <option value="15">15 cm</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                  <i class="bi bi-calculator me-2"></i>Calcular Coluna
+                </button>
+              </div>
+            </form>
+            <!-- Resumo Final Organizado para Coluna -->
+            <div id="resumoColuna" class="summary-highlight" style="display:none;"></div>
+            <!-- Detalhamento Completo dos Cálculos -->
+            <div id="resultadoColuna" class="resultado-box" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba Sapata -->
+      <div class="tab-pane fade" id="sapata">
+        <div class="main-card">
+          <div class="card-header">
+            <h4 class="mb-0">Parâmetros da Sapata</h4>
+          </div>
+          <div class="card-body p-4">
+            <form id="formSapata" class="row g-4">
+              <!-- Dimensões -->
+              <div class="col-md-4">
+                <label class="form-label">Comprimento (cm)</label>
+                <input type="number" class="form-control" id="comprimentoSapata" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Largura (cm)</label>
+                <input type="number" class="form-control" id="larguraSapata" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Altura (cm)</label>
+                <input type="number" class="form-control" id="alturaSapata" required>
+              </div>
+              <!-- Configurações Ferro -->
+              <div class="col-md-6">
+                <label class="form-label">Tipo de Ferro</label>
+                <select class="form-select" id="tipoFerroSapata">
+                  <option value="3/8" selected>3/8"</option>
+                  <option value="1/2">1/2"</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Quantidade de Ferros</label>
+                <select class="form-select" id="numFerroSapata" required>
+                  <option value="6">6</option>
+                  <option value="8" selected>8 (Padrão)</option>
+                  <option value="10">10</option>
+                  <option value="12">12</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                  <i class="bi bi-calculator me-2"></i>Calcular Sapata
+                </button>
+              </div>
+            </form>
+            <!-- Resumo Final Organizado para Sapata -->
+            <div id="resumoSapata" class="summary-highlight" style="display:none;"></div>
+            <!-- Detalhamento Completo dos Cálculos -->
+            <div id="resultadoSapata" class="resultado-box" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- Fim das Abas -->
+  </div>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Mapeamento dos códigos dos produtos
+    const produtos = {
+      "1/2": { code: "01395", desc: "FERRO 1/2" },
+      "1/4": { code: "01394", desc: "FERRO 1/4" },
+      "3/16": { code: "01396", desc: "FERRO 3/16" },
+      "3/8": { code: "01393", desc: "FERRO 3/8" },
+      "5/16": { code: "01397", desc: "FERRO 5/16" },
+      "arame": { code: "12242", desc: "ARAME RECOZIDO TORCIDO" }
+    };
+
+    // Helper para formatação de números (padrão brasileiro)
+    function formatNumber(num, decimals) {
+      return parseFloat(num).toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
+
+    // Função que adiciona evento de cópia aos botões
+    function addCopyButtons() {
+      document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          let value = this.getAttribute('data-copy');
+          navigator.clipboard.writeText(value).then(() => {
+            this.innerHTML = '<i class="bi bi-clipboard-check"></i>';
+            setTimeout(() => { this.innerHTML = '<i class="bi bi-clipboard"></i>'; }, 1500);
+          });
+        });
+      });
+    }
+
+    // Mostrar/esconder campos adicionais
+    document.getElementById("numFerroColuna").addEventListener("change", function() {
+      const bitolaContainer = document.getElementById("bitolaAdicionalContainer");
+      bitolaContainer.style.display = (this.value === "6") ? "block" : "none";
+    });
+    document.getElementById("adicionarCavaletes").addEventListener("change", function() {
+      const cavContainer = document.getElementById("cavaletesContainer");
+      cavContainer.style.display = this.checked ? "block" : "none";
+    });
+    
+    // Função para arredondar para cima com 5 casas decimais
+    function roundUp5(num) {
+      return (Math.ceil(num * 100000) / 100000).toFixed(5);
+    }
+    
+    // Cálculo da Coluna
+    document.getElementById("formColuna").addEventListener("submit", function(e) {
+      e.preventDefault();
+      let log = "";
+      
+      // Dados de entrada
+      const ferroColuna = document.getElementById("tipoFerroColuna").value;
+      const numFerro = parseInt(document.getElementById("numFerroColuna").value);
+      let extraFerro = ferroColuna;
+      if(numFerro === 6) {
+        extraFerro = document.getElementById("bitolaAdicional").value;
+      }
+      const temCavaletes = document.getElementById("adicionarCavaletes").checked;
+      let qtdCavaletes = 2; // padrão
+      let ferroCavalete = null;
+      if(temCavaletes) {
+        ferroCavalete = document.getElementById("tipoCavalete").value;
+        qtdCavaletes = parseInt(document.getElementById("qtdCavaletes").value);
+      }
+      const med1 = parseFloat(document.getElementById("medida1").value);
+      const med2 = parseFloat(document.getElementById("medida2").value);
+      const ferroEstribo = document.getElementById("tipoFerroEstribo").value;
+      const espacamento = parseInt(document.getElementById("espacamentoEstribos").value);
+      
+      log += "===== CÁLCULO DA COLUNA =====\n";
+      log += "Ferro da Coluna: " + ferroColuna + "\n";
+      log += "Quantidade: " + (numFerro === 4 ? "4 ferros" : "4 ferros + 2 adicionais") + "\n";
+      if(numFerro === 6) log += "Bitola dos 2 adicionais: " + extraFerro + "\n";
+      if(temCavaletes) log += "Cavaletes: " + qtdCavaletes + " com ferro " + ferroCavalete + " (3 m cada)\n";
+      log += "Medidas: " + med1 + " cm x " + med2 + " cm\n";
+      log += "Ferro dos Estribos: " + ferroEstribo + "\n";
+      log += "Espaçamento: " + espacamento + " cm\n\n";
+      
+      // Ferros verticais: cada ferro soma 1 m conforme especificado
+      let calcFerro = {};
+      function addFerro(tipo, metros) {
+        calcFerro[tipo] = (calcFerro[tipo] || 0) + metros;
+      }
+      if(numFerro === 4) {
+        addFerro(ferroColuna, 4);
+      } else if(numFerro === 6) {
+        addFerro(ferroColuna, 4);
+        addFerro(extraFerro, 2);
+      }
+      // Cavaletes: cada unidade soma 3 m
+      if(temCavaletes) addFerro(ferroCavalete, qtdCavaletes * 3);
+      
+      log += ">> Ferros Verticais:\n";
+      for (let tipo in calcFerro) {
+        log += "   - Ferro " + tipo + ": " + calcFerro[tipo].toFixed(2) + " m\n";
+      }
+      log += "\n";
+      
+      // Cálculo dos estribos
+      let compEstribo_cm = (med1 + med2) * 2 + 5;
+      let compEstribo_m = compEstribo_cm / 100;
+      log += ">> Estribos:\n";
+      log += "   - Comprimento por estribo: (" + med1 + " + " + med2 + ")*2 + 5 = " + compEstribo_cm + " cm → " + compEstribo_m.toFixed(2) + " m\n";
+      
+      let numEstribosPorMetro = (espacamento === 30) ? 3.33333333 : (espacamento === 20 ? 5 : 7);
+      let totalEstribo_m = compEstribo_m * numEstribosPorMetro;
+      log += "   - Estribos/m: " + numEstribosPorMetro.toFixed(8) + "\n";
+      log += "   - Total de ferro para estribos: " + compEstribo_m.toFixed(2) + " m x " + numEstribosPorMetro.toFixed(2) + " = " + totalEstribo_m.toFixed(2) + " m\n\n";
+      
+      // Cálculo do arame (cada ponto usa 0.0032333333 m)
+      let totalBarrasVerticais = 0;
+      for (let tipo in calcFerro) {
+        totalBarrasVerticais += calcFerro[tipo];
+      }
+      let totalPontos = totalBarrasVerticais * numEstribosPorMetro;
+      let arame_m = totalPontos * 0.0032333333;
+      arame_m = parseFloat(roundUp5(arame_m));
+      log += ">> Arame:\n";
+      log += "   - Pontos: " + totalPontos.toFixed(2) + "\n";
+      log += "   - Consumo: " + totalPontos.toFixed(2) + " x 0.0032333333 = " + arame_m + " m\n\n";
+      
+      // Consumo em barras: cada barra = 12 m, com 20% de folga (exceto o arame)
+      log += ">> Consumo em Barras (com 20% de folga):\n";
+      let consumoBarras = {};
+      function calcConsumo(tipo, metros) {
+        let metrosComFolga = metros * 1.20;
+        if(tipo === "1/4") {
+          metrosComFolga = Math.ceil(metrosComFolga);
+        } else if(tipo === "3/8") {
+          let resto = metrosComFolga % 1;
+          if(resto > 0 && resto < 0.5) metrosComFolga = Math.floor(metrosComFolga) + 0.5;
+          else if(resto >= 0.5 && resto < 1) metrosComFolga = Math.ceil(metrosComFolga);
+        }
+        return { metros: metrosComFolga, barras: (metrosComFolga / 12) };
+      }
+      for(let tipo in calcFerro) {
+        let res = calcConsumo(tipo, calcFerro[tipo]);
+        consumoBarras[tipo] = res;
+        log += "   - Ferro " + tipo + ": " + calcFerro[tipo].toFixed(2) + " m x 1.20 = " + res.metros.toFixed(2) + " m → " + res.barras.toFixed(5) + " barras\n";
+      }
+      {
+        let res = calcConsumo(ferroEstribo, totalEstribo_m);
+        if(consumoBarras[ferroEstribo])
+          consumoBarras[ferroEstribo] = {
+            metros: consumoBarras[ferroEstribo].metros + res.metros,
+            barras: (consumoBarras[ferroEstribo].barras + res.barras)
+          };
+        else
+          consumoBarras[ferroEstribo] = res;
+        log += "   - Estribos (" + ferroEstribo + "): " + totalEstribo_m.toFixed(2) + " m x 1.20 = " + res.metros.toFixed(2) + " m → " + res.barras.toFixed(5) + " barras\n";
+      }
+      
+      // Construção do Resumo Final (tabela)
+      let resumoHTML = `<h5 class="mb-3">Resumo Final - Coluna</h5>
+      <table class="table table-sm table-borderless">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Material</th>
+            <th>Total (m)</th>
+            <th>Barras</th>
+          </tr>
+        </thead>
+        <tbody>`;
+      for (let tipo in consumoBarras) {
+        let prod = produtos[tipo] || { code: tipo, desc: "FERRO " + tipo };
+        resumoHTML += `<tr>
+            <td>${prod.code}</td>
+            <td>${prod.desc}</td>
+            <td>${formatNumber(consumoBarras[tipo].metros, 2)}</td>
+            <td>${formatNumber(consumoBarras[tipo].barras, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${consumoBarras[tipo].barras.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+          </tr>`;
+      }
+      // Linha para Arame (exibido em metros)
+      resumoHTML += `<tr>
+          <td>${produtos["arame"].code}</td>
+          <td>${produtos["arame"].desc}</td>
+          <td>${formatNumber(arame_m, 5)}</td>
+          <td>${formatNumber(arame_m, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${arame_m.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+        </tr>`;
+      resumoHTML += `</tbody></table>`;
+      
+      // Exibe o resumo e os detalhes dos cálculos
+      document.getElementById("resumoColuna").style.display = "block";
+      document.getElementById("resumoColuna").innerHTML = resumoHTML;
+      document.getElementById("resultadoColuna").style.display = "block";
+      document.getElementById("resultadoColuna").textContent = log;
+      
+      // Ativa os botões de copiar
+      addCopyButtons();
+    });
+    
+    // Cálculo da Sapata
+    document.getElementById("formSapata").addEventListener("submit", function(e) {
+      e.preventDefault();
+      let log = "";
+      
+      const C = parseFloat(document.getElementById("comprimentoSapata").value);
+      const L = parseFloat(document.getElementById("larguraSapata").value);
+      const A = parseFloat(document.getElementById("alturaSapata").value);
+      const ferroSapata = document.getElementById("tipoFerroSapata").value;
+      const numFerro = parseInt(document.getElementById("numFerroSapata").value);
+      
+      log += "===== CÁLCULO DA SAPATA =====\n";
+      log += "Dimensões (cm): C=" + C + ", L=" + L + ", A=" + A + "\n";
+      log += "Ferro da Sapata: " + ferroSapata + "\n";
+      log += "Número de ferros: " + numFerro + "\n\n";
+      
+      const C_m = C / 100;
+      const L_m = L / 100;
+      const A_m = A / 100;
+      
+      let eixoX = (((C_m + A_m) * 2) + 0.05) * (numFerro / 2);
+      log += ">> Eixo X: (( " + C_m.toFixed(2) + " + " + A_m.toFixed(2) + ")*2 + 0.05) x " + (numFerro/2).toFixed(2) + " = " + eixoX.toFixed(2) + " m\n";
+      let eixoY = (((L_m + A_m) * 2) + 0.05) * (numFerro / 2);
+      log += ">> Eixo Y: (( " + L_m.toFixed(2) + " + " + A_m.toFixed(2) + ")*2 + 0.05) x " + (numFerro/2).toFixed(2) + " = " + eixoY.toFixed(2) + " m\n";
+      
+      let total_m = eixoX + eixoY;
+      log += ">> Total de ferro (eixos): " + eixoX.toFixed(2) + " + " + eixoY.toFixed(2) + " = " + total_m.toFixed(2) + " m\n";
+      
+      let totalComFolga = total_m * 1.20;
+      log += "   + Folga de 20%: " + total_m.toFixed(2) + " x 1.20 = " + totalComFolga.toFixed(2) + " m\n";
+      
+      let totalFinal;
+      {
+        let parteInt = Math.floor(totalComFolga);
+        let parteDec = totalComFolga - parteInt;
+        totalFinal = (parteDec < 0.5) ? parteInt + 0.5 : Math.ceil(totalComFolga);
+      }
+      log += ">> Total final de ferro (após arredondamento): " + totalFinal.toFixed(2) + " m\n";
+      
+      let barrasSapata = (totalFinal / 12);
+      log += "   → Barras necessárias: " + totalFinal.toFixed(2) + " / 12 = " + barrasSapata.toFixed(5) + " barras\n\n";
+      
+      let amarracao;
+      switch(numFerro) {
+        case 6: amarracao = 0.07776; break;
+        case 8: amarracao = 0.10368; break;
+        case 10: amarracao = 0.12960; break;
+        case 12: amarracao = 0.15552; break;
+        default: amarracao = 0;
+      }
+      log += ">> Amarração: Para " + numFerro + " ferros, utiliza-se " + amarracao + " m de arame.\n";
+      
+      // Resumo final para Sapata (tabela organizada)
+      let prodFerroSapata = produtos[ferroSapata] || { code: ferroSapata, desc: "FERRO " + ferroSapata };
+      let resumoHTML = `<h5 class="mb-3">Resumo Final - Sapata</h5>
+      <table class="table table-sm table-borderless">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Material</th>
+            <th>Total (m)</th>
+            <th>Barras</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${prodFerroSapata.code}</td>
+            <td>${prodFerroSapata.desc}</td>
+            <td>${formatNumber(totalFinal, 2)}</td>
+            <td>${formatNumber(barrasSapata, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${barrasSapata.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+          </tr>
+          <tr>
+            <td>${produtos["arame"].code}</td>
+            <td>${produtos["arame"].desc}</td>
+            <td>${formatNumber(amarracao, 5)}</td>
+            <td>${formatNumber(amarracao, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${amarracao.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+          </tr>
+        </tbody>
+      </table>`;
+      
+      document.getElementById("resumoSapata").style.display = "block";
+      document.getElementById("resumoSapata").innerHTML = resumoHTML;
+      document.getElementById("resultadoSapata").style.display = "block";
+      document.getElementById("resultadoSapata").textContent = log;
+      
+      // Ativa os botões de copiar
+      addCopyButtons();
+    });
+  </script>
+</body>
+</html>
