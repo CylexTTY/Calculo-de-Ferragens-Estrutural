@@ -156,6 +156,8 @@
                 <select class="form-select" id="numFerroColuna" required>
                   <option value="4" selected>4 unidades</option>
                   <option value="6">6 unidades</option>
+                  <option value="8">8 unidades</option>
+                  <option value="10">10 unidades</option>
                 </select>
               </div>
               <!-- Seção Adicionais -->
@@ -167,7 +169,7 @@
                     <option value="3/8" selected>3/8"</option>
                     <option value="5/16">5/16"</option>
                   </select>
-                  <small class="text-muted">Bitola para os 2 ferros adicionais</small>
+                  <small class="text-muted" id="bitolaAdicionalDesc">Bitola para os ferros adicionais</small>
                 </div>
               </div>
               <!-- Seção Cavaletes -->
@@ -208,6 +210,7 @@
                 <label class="form-label">Ferro para Estribos</label>
                 <select class="form-select" id="tipoFerroEstribo">
                   <option value="3/16" selected>3/16"</option>
+                  <option value="1/4">1/4"</option>
                   <option value="5/16">5/16"</option>
                 </select>
               </div>
@@ -318,11 +321,45 @@
       });
     }
 
-    // Mostrar/esconder campos adicionais
+    // Função para recalcular barras quando metros são editados
+    function addEditableMeters() {
+      document.querySelectorAll('.editable-meters').forEach(input => {
+        input.addEventListener('input', function() {
+          let metros = parseFloat(this.value) || 0;
+          let row = this.closest('tr');
+          let barrasCell = row.querySelector('.barras-value');
+          let copyBtn = row.querySelector('.copy-btn');
+          let materialCell = row.querySelector('td:nth-child(2)').textContent;
+          
+          let barras;
+          // Arame é vendido em metros, não em barras de 12m
+          if(materialCell.includes('ARAME')) {
+            barras = metros.toFixed(5);
+          } else {
+            barras = (metros / 12).toFixed(5);
+          }
+          
+          barrasCell.textContent = formatNumber(parseFloat(barras), 5);
+          copyBtn.setAttribute('data-copy', barras.replace('.', ','));
+        });
+      });
+    }
+
+    // Mostrar/esconder campos adicionais e atualizar descrição
     document.getElementById("numFerroColuna").addEventListener("change", function() {
       const bitolaContainer = document.getElementById("bitolaAdicionalContainer");
-      bitolaContainer.style.display = (this.value === "6") ? "block" : "none";
+      const bitolaDesc = document.getElementById("bitolaAdicionalDesc");
+      const numFerro = parseInt(this.value);
+      
+      if(numFerro > 4) {
+        bitolaContainer.style.display = "block";
+        const ferrosAdicionais = numFerro - 4;
+        bitolaDesc.textContent = `Bitola para os ${ferrosAdicionais} ferros adicionais`;
+      } else {
+        bitolaContainer.style.display = "none";
+      }
     });
+    
     document.getElementById("adicionarCavaletes").addEventListener("change", function() {
       const cavContainer = document.getElementById("cavaletesContainer");
       cavContainer.style.display = this.checked ? "block" : "none";
@@ -342,7 +379,7 @@
       const ferroColuna = document.getElementById("tipoFerroColuna").value;
       const numFerro = parseInt(document.getElementById("numFerroColuna").value);
       let extraFerro = ferroColuna;
-      if(numFerro === 6) {
+      if(numFerro > 4) {
         extraFerro = document.getElementById("bitolaAdicional").value;
       }
       const temCavaletes = document.getElementById("adicionarCavaletes").checked;
@@ -359,8 +396,21 @@
       
       log += "===== CÁLCULO DA COLUNA =====\n";
       log += "Ferro da Coluna: " + ferroColuna + "\n";
-      log += "Quantidade: " + (numFerro === 4 ? "4 ferros" : "4 ferros + 2 adicionais") + "\n";
-      if(numFerro === 6) log += "Bitola dos 2 adicionais: " + extraFerro + "\n";
+      
+      // Descrição da quantidade baseada na configuração
+      let descricaoQuantidade = "";
+      if(numFerro === 4) {
+        descricaoQuantidade = "4 ferros";
+      } else {
+        const ferrosAdicionais = numFerro - 4;
+        descricaoQuantidade = `4 ferros + ${ferrosAdicionais} adicionais`;
+      }
+      log += "Quantidade: " + descricaoQuantidade + "\n";
+      
+      if(numFerro > 4) {
+        const ferrosAdicionais = numFerro - 4;
+        log += `Bitola dos ${ferrosAdicionais} adicionais: ` + extraFerro + "\n";
+      }
       if(temCavaletes) log += "Cavaletes: " + qtdCavaletes + " com ferro " + ferroCavalete + " (3 m cada)\n";
       log += "Medidas: " + med1 + " cm x " + med2 + " cm\n";
       log += "Ferro dos Estribos: " + ferroEstribo + "\n";
@@ -371,12 +421,16 @@
       function addFerro(tipo, metros) {
         calcFerro[tipo] = (calcFerro[tipo] || 0) + metros;
       }
-      if(numFerro === 4) {
-        addFerro(ferroColuna, 4);
-      } else if(numFerro === 6) {
-        addFerro(ferroColuna, 4);
-        addFerro(extraFerro, 2);
+      
+      // Sempre 4 ferros principais
+      addFerro(ferroColuna, 4);
+      
+      // Ferros adicionais se necessário
+      if(numFerro > 4) {
+        const ferrosAdicionais = numFerro - 4;
+        addFerro(extraFerro, ferrosAdicionais);
       }
+      
       // Cavaletes: cada unidade soma 3 m
       if(temCavaletes) addFerro(ferroCavalete, qtdCavaletes * 3);
       
@@ -412,24 +466,28 @@
       // Consumo em barras: cada barra = 12 m, com 20% de folga (exceto o arame)
       log += ">> Consumo em Barras (com 20% de folga):\n";
       let consumoBarras = {};
-      function calcConsumo(tipo, metros) {
+      function calcConsumo(tipo, metros, isFerroEstribo = false) {
         let metrosComFolga = metros * 1.20;
-        if(tipo === "1/4") {
-          metrosComFolga = Math.ceil(metrosComFolga);
-        } else if(tipo === "3/8") {
-          let resto = metrosComFolga % 1;
-          if(resto > 0 && resto < 0.5) metrosComFolga = Math.floor(metrosComFolga) + 0.5;
-          else if(resto >= 0.5 && resto < 1) metrosComFolga = Math.ceil(metrosComFolga);
+        // Arredondamento inteligente apenas para ferros principais (não estribos)
+        if(!isFerroEstribo) {
+          if(tipo === "1/4") {
+            metrosComFolga = Math.ceil(metrosComFolga);
+          } else if(tipo === "3/8" || tipo === "5/16" || tipo === "1/2") {
+            // Arredondamento inteligente para evitar desperdício de ferro principal
+            let resto = metrosComFolga % 1;
+            if(resto > 0 && resto < 0.5) metrosComFolga = Math.floor(metrosComFolga) + 0.5;
+            else if(resto >= 0.5 && resto < 1) metrosComFolga = Math.ceil(metrosComFolga);
+          }
         }
         return { metros: metrosComFolga, barras: (metrosComFolga / 12) };
       }
       for(let tipo in calcFerro) {
-        let res = calcConsumo(tipo, calcFerro[tipo]);
+        let res = calcConsumo(tipo, calcFerro[tipo], false); // false = ferro principal
         consumoBarras[tipo] = res;
         log += "   - Ferro " + tipo + ": " + calcFerro[tipo].toFixed(2) + " m x 1.20 = " + res.metros.toFixed(2) + " m → " + res.barras.toFixed(5) + " barras\n";
       }
       {
-        let res = calcConsumo(ferroEstribo, totalEstribo_m);
+        let res = calcConsumo(ferroEstribo, totalEstribo_m, true); // true = ferro de estribo
         if(consumoBarras[ferroEstribo])
           consumoBarras[ferroEstribo] = {
             metros: consumoBarras[ferroEstribo].metros + res.metros,
@@ -457,16 +515,16 @@
         resumoHTML += `<tr>
             <td>${prod.code}</td>
             <td>${prod.desc}</td>
-            <td>${formatNumber(consumoBarras[tipo].metros, 2)}</td>
-            <td>${formatNumber(consumoBarras[tipo].barras, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${consumoBarras[tipo].barras.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+            <td><input type="number" class="form-control form-control-sm editable-meters" value="${consumoBarras[tipo].metros.toFixed(2)}" step="0.01" min="0"></td>
+            <td><span class="barras-value">${formatNumber(consumoBarras[tipo].barras, 5)}</span> <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${consumoBarras[tipo].barras.toFixed(5).replace('.', ',')}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
           </tr>`;
       }
       // Linha para Arame (exibido em metros)
       resumoHTML += `<tr>
           <td>${produtos["arame"].code}</td>
           <td>${produtos["arame"].desc}</td>
-          <td>${formatNumber(arame_m, 5)}</td>
-          <td>${formatNumber(arame_m, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${arame_m.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+          <td><input type="number" class="form-control form-control-sm editable-meters" value="${arame_m.toFixed(5)}" step="0.00001" min="0"></td>
+          <td><span class="barras-value">${formatNumber(arame_m, 5)}</span> <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${arame_m.toFixed(5).replace('.', ',')}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
         </tr>`;
       resumoHTML += `</tbody></table>`;
       
@@ -476,8 +534,9 @@
       document.getElementById("resultadoColuna").style.display = "block";
       document.getElementById("resultadoColuna").textContent = log;
       
-      // Ativa os botões de copiar
+      // Ativa os botões de copiar e campos editáveis
       addCopyButtons();
+      addEditableMeters();
     });
     
     // Cálculo da Sapata
@@ -548,14 +607,14 @@
           <tr>
             <td>${prodFerroSapata.code}</td>
             <td>${prodFerroSapata.desc}</td>
-            <td>${formatNumber(totalFinal, 2)}</td>
-            <td>${formatNumber(barrasSapata, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${barrasSapata.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+            <td><input type="number" class="form-control form-control-sm editable-meters" value="${totalFinal.toFixed(2)}" step="0.01" min="0"></td>
+            <td><span class="barras-value">${formatNumber(barrasSapata, 5)}</span> <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${barrasSapata.toFixed(5).replace('.', ',')}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
           </tr>
           <tr>
             <td>${produtos["arame"].code}</td>
             <td>${produtos["arame"].desc}</td>
-            <td>${formatNumber(amarracao, 5)}</td>
-            <td>${formatNumber(amarracao, 5)} <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${amarracao.toFixed(5)}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
+            <td><input type="number" class="form-control form-control-sm editable-meters" value="${amarracao.toFixed(5)}" step="0.00001" min="0"></td>
+            <td><span class="barras-value">${formatNumber(amarracao, 5)}</span> <button class="btn btn-sm btn-outline-secondary copy-btn" data-copy="${amarracao.toFixed(5).replace('.', ',')}" title="Copiar"><i class="bi bi-clipboard"></i></button></td>
           </tr>
         </tbody>
       </table>`;
@@ -565,8 +624,9 @@
       document.getElementById("resultadoSapata").style.display = "block";
       document.getElementById("resultadoSapata").textContent = log;
       
-      // Ativa os botões de copiar
+      // Ativa os botões de copiar e campos editáveis
       addCopyButtons();
+      addEditableMeters();
     });
   </script>
 </body>
