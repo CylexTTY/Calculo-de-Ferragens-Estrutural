@@ -204,11 +204,11 @@
               </div>
               <div class="col-6">
                 <label class="form-label">Dimensão 1 (cm)</label>
-                <input type="number" class="form-control form-control-sm" id="medida1" required>
+                <input type="number" class="form-control form-control-sm" id="medida1" min="0.1" step="any" required>
               </div>
               <div class="col-6">
                 <label class="form-label">Dimensão 2 (cm)</label>
-                <input type="number" class="form-control form-control-sm" id="medida2" required>
+                <input type="number" class="form-control form-control-sm" id="medida2" min="0.1" step="any" required>
               </div>
               <div class="col-6">
                 <label class="form-label">Ferro Estribos</label>
@@ -250,15 +250,15 @@
             <form id="formSapata" class="row g-2">
               <div class="col-4">
                 <label class="form-label">Comp.(cm)</label>
-                <input type="number" class="form-control form-control-sm" id="comprimentoSapata" required>
+                <input type="number" class="form-control form-control-sm" id="comprimentoSapata" min="0.1" step="any" required>
               </div>
               <div class="col-4">
                 <label class="form-label">Larg.(cm)</label>
-                <input type="number" class="form-control form-control-sm" id="larguraSapata" required>
+                <input type="number" class="form-control form-control-sm" id="larguraSapata" min="0.1" step="any" required>
               </div>
               <div class="col-4">
                 <label class="form-label">Alt.(cm)</label>
-                <input type="number" class="form-control form-control-sm" id="alturaSapata" required>
+                <input type="number" class="form-control form-control-sm" id="alturaSapata" min="0.1" step="any" required>
               </div>
               <div class="col-6">
                 <label class="form-label">Tipo Ferro</label>
@@ -422,7 +422,7 @@
       <table class="table table-sm table-borderless">
         <thead>
           <tr>
-            <th>Código</th><th>Material</th><th>Total (m)</th><th>Barras</th>
+            <th>Código</th><th>Material</th><th>Total (m/kg)</th><th>Barras</th>
           </tr>
         </thead>
         <tbody>`;
@@ -519,7 +519,7 @@
       let totalPts = ttlMetrosVerticaisAgrupados * estribosP_Metro;
       let arameM = parseFloat(roundUp5(totalPts * CONFIG.CONSUMO_ARAME_POR_PONTO));
       
-      log += `>> Arame:\n   - Pontos: ${totalPts.toFixed(2)} | Consumo: ${arameM} m\n\n`;
+      log += `>> Arame:\n   - Pontos: ${totalPts.toFixed(2)} | Consumo: ${arameM} kg\n\n`;
       
       // Fechamento Consumo e Conversão
       log += `>> Consumo em Barras (com ${(CONFIG.FATOR_FOLGA - 1)*100}% de folga):\n`;
@@ -571,7 +571,7 @@
       
       let arameMap = { 6: 0.07776, 8: 0.10368, 10: 0.12960, 12: 0.15552 };
       let amarracaoM = arameMap[numFerro] || 0;
-      log += `>> Amarração Sapata (Tabela Arame Padrão): ${amarracaoM} m\n\n`;
+      log += `>> Amarração Sapata (Tabela Arame Padrão): ${amarracaoM} kg\n\n`;
 
       let consumoFerro = calcularConsumo(tipoFerro, totMetros);
       
