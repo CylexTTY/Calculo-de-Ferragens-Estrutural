@@ -358,23 +358,17 @@
     /**
      * Lógica Mestra de Arredondamento Comercial / Barras
      */
-    function calcularConsumo(tipo, metros, isFerroEstribo = false) {
+    function calcularConsumo(tipo, metros) {
       let metrosComFolga = metros * CONFIG.FATOR_FOLGA;
       
-      // Inteligência de Arredondamento (Aplica a todos os ferros e bitolas para fechar em metragens comercias)
-      if (tipo === "1/4" || tipo === "3/16") {
-        metrosComFolga = Math.ceil(metrosComFolga);
-      } else if (["3/8", "5/16", "1/2"].includes(tipo)) {
-        let resto = metrosComFolga % 1;
-        if (resto > 0 && resto < 0.5) {
-          metrosComFolga = Math.floor(metrosComFolga) + 0.5;
-        } else if (resto >= 0.5 && resto < 1) {
-          metrosComFolga = Math.ceil(metrosComFolga);
-        }
-      }
+      // Inteligência Extrema de Arredondamento de Barras Inteiras
+      // A matemática avisa quantas barras COMPRAR, ignorando fatiamentos de 0.5m ou sobras impossíveis na loja.
+      let qtBarrasInteiras = Math.ceil(metrosComFolga / CONFIG.TAMANHO_BARRA_M);
+      let metrosFechadosComercial = qtBarrasInteiras * CONFIG.TAMANHO_BARRA_M;
+      
       return { 
-        metros: metrosComFolga, 
-        barras: (metrosComFolga / CONFIG.TAMANHO_BARRA_M) 
+        metros: metrosFechadosComercial, 
+        barras: qtBarrasInteiras 
       };
     }
 
@@ -553,16 +547,17 @@
       
       log += `>> Total de ferro p/ Eixos: ${eixoX.toFixed(2)}m (X) + ${eixoY.toFixed(2)}m (Y) = ${totMetros.toFixed(2)} m\n`;
       
-      let mtFolga = totMetros * CONFIG.FATOR_FOLGA;
-      let totFinalArredondado = (mtFolga - Math.floor(mtFolga) < 0.5) ? Math.floor(mtFolga) + 0.5 : Math.ceil(mtFolga);
-      
-      log += `   + Folga (${(CONFIG.FATOR_FOLGA - 1)*100}%): ${mtFolga.toFixed(2)} m (Arredondado final: ${totFinalArredondado.toFixed(2)}m)\n`;
-      
       let arameMap = { 6: 0.07776, 8: 0.10368, 10: 0.12960, 12: 0.15552 };
       let amarracaoM = arameMap[numFerro] || 0;
-      log += `>> Amarração Sapata (Tabela Arame Padrão): ${amarracaoM} m\n`;
+      log += `>> Amarração Sapata (Tabela Arame Padrão): ${amarracaoM} m\n\n`;
 
-      let consumoMap = { [tipoFerro]: { metros: totFinalArredondado, barras: totFinalArredondado / CONFIG.TAMANHO_BARRA_M } };
+      let consumoFerro = calcularConsumo(tipoFerro, totMetros);
+      
+      log += `>> Consumo Comercial em Barras (com ${(CONFIG.FATOR_FOLGA - 1)*100}% de folga):\n`;
+      log += `   - Métrica quebrada c/ folga: ${(totMetros * CONFIG.FATOR_FOLGA).toFixed(2)} m\n`;
+      log += `   - Arredondando p/ teto comercial da barra de 12m (x${consumoFerro.barras} barras): ${consumoFerro.metros.toFixed(2)} m\n\n`;
+
+      let consumoMap = { [tipoFerro]: consumoFerro };
       renderizarResumoFinal(consumoMap, amarracaoM, log, "Sapata", "Sapata");
     });
   </script>
