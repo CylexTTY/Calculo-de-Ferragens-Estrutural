@@ -46,12 +46,14 @@
     .form-label {
       font-weight: 500;
       color: #1e293b;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.2rem;
+      font-size: 0.85rem;
     }
     .form-control, .form-select {
-      border-radius: 8px;
-      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
       border: 1px solid var(--card-border);
+      font-size: 0.9rem;
     }
     .form-control:focus, .form-select:focus {
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -59,26 +61,27 @@
     .resultado-box {
       background: white;
       border: 2px solid var(--card-border);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-top: 1.5rem;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9em;
+      font-size: 0.85em;
       white-space: pre-wrap;
     }
     .summary-highlight {
       background: #f1f5f9;
       border-left: 4px solid var(--primary);
-      padding: 1rem;
-      margin-bottom: 1.5rem;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
       border-radius: 6px;
     }
     .btn-primary {
       background: var(--primary);
       border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
       font-weight: 500;
+      font-size: 0.95rem;
       transition: all 0.2s;
     }
     .btn-primary:hover {
@@ -89,12 +92,15 @@
       background-color: var(--primary);
       border-color: var(--primary);
     }
+    .form-check-label {
+      font-size: 0.9rem;
+    }
     @media (max-width: 768px) {
       .container {
-        padding: 0 15px;
+        padding: 0 10px;
       }
       .card-header h4 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
       }
     }
     /* Estilo para o botão de copiar */
@@ -115,11 +121,11 @@
   </nav>
 
   <!-- Conteúdo Principal -->
-  <div class="container my-5">
-    <h2 class="text-center mb-4 fw-semibold">Cálculo de Materiais para Estruturas</h2>
+  <div class="container my-2">
+    <h4 class="text-center mb-3 fw-semibold">Cálculo de Materiais para Estruturas</h4>
     
     <!-- Abas de Navegação -->
-    <ul class="nav nav-pills justify-content-center gap-2 mb-5" id="calcTabs" role="tablist">
+    <ul class="nav nav-pills justify-content-center gap-2 mb-3" id="calcTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="coluna-tab" data-bs-toggle="tab" data-bs-target="#coluna" type="button">
           <i class="bi bi-columns-gap me-2"></i>Coluna
@@ -137,103 +143,96 @@
       <!-- Aba Coluna -->
       <div class="tab-pane fade show active" id="coluna">
         <div class="main-card">
-          <div class="card-header">
-            <h4 class="mb-0">Parâmetros da Coluna</h4>
+          <div class="card-header py-2">
+            <h5 class="mb-0">Aba Coluna</h5>
           </div>
-          <div class="card-body p-4">
-            <form id="formColuna" class="row g-4">
-              <!-- Seção Ferro Principal -->
-              <div class="col-md-6">
+          <div class="card-body p-2 p-md-3">
+            <form id="formColuna" class="row g-2">
+              <div class="col-6">
                 <label class="form-label">Ferro Principal</label>
-                <select class="form-select" id="tipoFerroColuna" required>
+                <select class="form-select form-select-sm" id="tipoFerroColuna" required>
                   <option value="1/2">1/2"</option>
                   <option value="3/8" selected>3/8" (Padrão)</option>
                   <option value="5/16">5/16"</option>
                 </select>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Quantidade de Ferros</label>
-                <select class="form-select" id="numFerroColuna" required>
-                  <option value="4" selected>4 unidades</option>
-                  <option value="6">6 unidades</option>
-                  <option value="8">8 unidades</option>
-                  <option value="10">10 unidades</option>
+              <div class="col-6">
+                <label class="form-label">Quantidade</label>
+                <select class="form-select form-select-sm" id="numFerroColuna" required>
+                  <option value="4" selected>4 unid.</option>
+                  <option value="6">6 unid.</option>
+                  <option value="8">8 unid.</option>
+                  <option value="10">10 unid.</option>
                 </select>
               </div>
-              <!-- Seção Adicionais -->
-              <div class="col-12" id="bitolaAdicionalContainer" style="display: none;">
-                <div class="border p-3 rounded-2">
-                  <label class="form-label">Ferros Adicionais</label>
-                  <select class="form-select" id="bitolaAdicional">
+              <div class="col-12 mt-1" id="bitolaAdicionalContainer" style="display: none;">
+                <div class="border p-2 rounded bg-light">
+                  <label class="form-label">Adicionais</label>
+                  <select class="form-select form-select-sm" id="bitolaAdicional">
                     <option value="1/2">1/2"</option>
                     <option value="3/8" selected>3/8"</option>
                     <option value="5/16">5/16"</option>
                     <option value="1/4">1/4"</option>
                   </select>
-                  <small class="text-muted" id="bitolaAdicionalDesc">Bitola para os ferros adicionais</small>
+                  <small class="text-muted" id="bitolaAdicionalDesc" style="font-size: 0.75rem;">Bitola extra</small>
                 </div>
               </div>
-              <!-- Seção Cavaletes -->
-              <div class="col-12">
-                <div class="form-check form-switch">
+              <div class="col-12 mt-1">
+                <div class="form-check form-switch mb-1">
                   <input class="form-check-input" type="checkbox" id="adicionarCavaletes">
-                  <label class="form-check-label">Adicionar Cavaletes</label>
+                  <label class="form-check-label form-label mb-0">Com Cavaletes</label>
                 </div>
-                <div class="mt-2" id="cavaletesContainer" style="display: none;">
+                <div id="cavaletesContainer" style="display: none;">
                   <div class="row g-2">
                     <div class="col-6">
-                      <select class="form-select" id="tipoCavalete">
+                      <select class="form-select form-select-sm" id="tipoCavalete">
                         <option value="5/16">5/16"</option>
                         <option value="1/4">1/4"</option>
                         <option value="3/8">3/8"</option>
                       </select>
                     </div>
                     <div class="col-6">
-                      <select class="form-select" id="qtdCavaletes">
-                        <option value="1">1 Cavalete</option>
-                        <option value="2" selected>2 Cavaletes</option>
+                      <select class="form-select form-select-sm" id="qtdCavaletes">
+                        <option value="1">1 Cav.</option>
+                        <option value="2" selected>2 Cav.</option>
                       </select>
                     </div>
                   </div>
                 </div>
               </div>
-              <!-- Seção Medidas -->
-              <div class="col-md-6">
+              <div class="col-6">
                 <label class="form-label">Dimensão 1 (cm)</label>
-                <input type="number" class="form-control" id="medida1" required>
+                <input type="number" class="form-control form-control-sm" id="medida1" required>
               </div>
-              <div class="col-md-6">
+              <div class="col-6">
                 <label class="form-label">Dimensão 2 (cm)</label>
-                <input type="number" class="form-control" id="medida2" required>
+                <input type="number" class="form-control form-control-sm" id="medida2" required>
               </div>
-              <!-- Seção Estribos -->
-              <div class="col-md-6">
-                <label class="form-label">Ferro para Estribos</label>
-                <select class="form-select" id="tipoFerroEstribo">
+              <div class="col-6">
+                <label class="form-label">Ferro Estribos</label>
+                <select class="form-select form-select-sm" id="tipoFerroEstribo">
                   <option value="3/16" selected>3/16"</option>
                   <option value="1/4">1/4"</option>
                   <option value="5/16">5/16"</option>
                 </select>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Espaçamento dos Estribos</label>
-                <select class="form-select" id="espacamentoEstribos">
+              <div class="col-6">
+                <label class="form-label">Espaçamento</label>
+                <select class="form-select form-select-sm" id="espacamentoEstribos">
                   <option value="30" selected>30 cm</option>
                   <option value="20">20 cm</option>
                   <option value="15">15 cm</option>
                   <option value="10">10 cm</option>
                 </select>
               </div>
-              <div class="col-12">
-                <button type="submit" class="btn btn-primary w-100 py-2">
-                  <i class="bi bi-calculator me-2"></i>Calcular Coluna
+              <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                  <i class="bi bi-calculator me-1"></i>Calcular
                 </button>
               </div>
             </form>
-            <!-- Resumo Final Organizado para Coluna -->
-            <div id="resumoColuna" class="summary-highlight" style="display:none;"></div>
-            <!-- Detalhamento Completo dos Cálculos -->
-            <div id="resultadoColuna" class="resultado-box" style="display:none;"></div>
+            <div id="resumoColuna" class="summary-highlight p-2 mt-3" style="display:none;font-size:0.85rem;"></div>
+            <div id="resultadoColuna" class="resultado-box p-2 mt-2" style="display:none;font-size:0.75rem;"></div>
           </div>
         </div>
       </div>
@@ -241,51 +240,47 @@
       <!-- Aba Sapata -->
       <div class="tab-pane fade" id="sapata">
         <div class="main-card">
-          <div class="card-header">
-            <h4 class="mb-0">Parâmetros da Sapata</h4>
+          <div class="card-header py-2">
+            <h5 class="mb-0">Aba Sapata</h5>
           </div>
-          <div class="card-body p-4">
-            <form id="formSapata" class="row g-4">
-              <!-- Dimensões -->
-              <div class="col-md-4">
-                <label class="form-label">Comprimento (cm)</label>
-                <input type="number" class="form-control" id="comprimentoSapata" required>
+          <div class="card-body p-2 p-md-3">
+            <form id="formSapata" class="row g-2">
+              <div class="col-4">
+                <label class="form-label">Comp.(cm)</label>
+                <input type="number" class="form-control form-control-sm" id="comprimentoSapata" required>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Largura (cm)</label>
-                <input type="number" class="form-control" id="larguraSapata" required>
+              <div class="col-4">
+                <label class="form-label">Larg.(cm)</label>
+                <input type="number" class="form-control form-control-sm" id="larguraSapata" required>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Altura (cm)</label>
-                <input type="number" class="form-control" id="alturaSapata" required>
+              <div class="col-4">
+                <label class="form-label">Alt.(cm)</label>
+                <input type="number" class="form-control form-control-sm" id="alturaSapata" required>
               </div>
-              <!-- Configurações Ferro -->
-              <div class="col-md-6">
-                <label class="form-label">Tipo de Ferro</label>
-                <select class="form-select" id="tipoFerroSapata">
+              <div class="col-6">
+                <label class="form-label">Tipo Ferro</label>
+                <select class="form-select form-select-sm" id="tipoFerroSapata">
                   <option value="3/8" selected>3/8"</option>
                   <option value="1/2">1/2"</option>
                 </select>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Quantidade de Ferros</label>
-                <select class="form-select" id="numFerroSapata" required>
+              <div class="col-6">
+                <label class="form-label">Qtd. Ferros</label>
+                <select class="form-select form-select-sm" id="numFerroSapata" required>
                   <option value="6">6</option>
-                  <option value="8" selected>8 (Padrão)</option>
+                  <option value="8" selected>8</option>
                   <option value="10">10</option>
                   <option value="12">12</option>
                 </select>
               </div>
-              <div class="col-12">
-                <button type="submit" class="btn btn-primary w-100 py-2">
-                  <i class="bi bi-calculator me-2"></i>Calcular Sapata
+              <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                  <i class="bi bi-calculator me-1"></i>Calcular
                 </button>
               </div>
             </form>
-            <!-- Resumo Final Organizado para Sapata -->
-            <div id="resumoSapata" class="summary-highlight" style="display:none;"></div>
-            <!-- Detalhamento Completo dos Cálculos -->
-            <div id="resultadoSapata" class="resultado-box" style="display:none;"></div>
+            <div id="resumoSapata" class="summary-highlight p-2 mt-3" style="display:none;font-size:0.85rem;"></div>
+            <div id="resultadoSapata" class="resultado-box p-2 mt-2" style="display:none;font-size:0.75rem;"></div>
           </div>
         </div>
       </div>
