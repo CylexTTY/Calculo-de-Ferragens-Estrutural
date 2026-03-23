@@ -186,7 +186,6 @@
                         <option value="5/16">5/16"</option>
                         <option value="1/4">1/4"</option>
                         <option value="3/8">3/8"</option>
-                        <option value="3/16">3/16"</option>
                       </select>
                     </div>
                     <div class="col-6">
@@ -222,6 +221,7 @@
                   <option value="30" selected>30 cm</option>
                   <option value="20">20 cm</option>
                   <option value="15">15 cm</option>
+                  <option value="10">10 cm</option>
                 </select>
               </div>
               <div class="col-12">
@@ -492,7 +492,10 @@
       let compEstribo_cm = ((med1 + med2) * 2) + CONFIG.FOLGA_DOBRA_ESTRIBO_CM;
       let compEstribo_m = compEstribo_cm / 100;
       
-      let estribosP_Metro = espacamento === 30 ? 3.33333333 : (espacamento === 20 ? 5 : 7);
+      // Mantendo a constância original do projeto para os espaçamentos históricos
+      let estribosP_Metro = espacamento === 30 ? 3.33333333 : 
+                            espacamento === 20 ? 5 : 
+                            espacamento === 15 ? 7 : 10;
       let totalEst_m = compEstribo_m * estribosP_Metro;
       
       log += ">> Estribos:\n";
