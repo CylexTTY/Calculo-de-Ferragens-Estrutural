@@ -361,14 +361,36 @@
     function calcularConsumo(tipo, metros) {
       let metrosComFolga = metros * CONFIG.FATOR_FOLGA;
       
-      // Inteligência Extrema de Arredondamento de Barras Inteiras
-      // A matemática avisa quantas barras COMPRAR, ignorando fatiamentos de 0.5m ou sobras impossíveis na loja.
-      let qtBarrasInteiras = Math.ceil(metrosComFolga / CONFIG.TAMANHO_BARRA_M);
-      let metrosFechadosComercial = qtBarrasInteiras * CONFIG.TAMANHO_BARRA_M;
+      // 1. ARREDONDAMENTO BASE ORIGINAL (Meia barra ou teto)
+      if (tipo === "1/4" || tipo === "3/16") {
+        metrosComFolga = Math.ceil(metrosComFolga);
+      } else if (["3/8", "5/16", "1/2"].includes(tipo)) {
+        let resto = metrosComFolga % 1;
+        if (resto > 0 && resto <= 0.5) {
+          metrosComFolga = Math.floor(metrosComFolga) + 0.5;
+        } else if (resto > 0.5) {
+          metrosComFolga = Math.ceil(metrosComFolga);
+        }
+      }
+      
+      // 2. PENALIDADE DE SOBRAS / PEDAÇOS INÚTEIS (Avaliação do corte da barra de 12m)
+      let sobra = CONFIG.TAMANHO_BARRA_M - (metrosComFolga % CONFIG.TAMANHO_BARRA_M);
+      if (sobra === 12) sobra = 0; // Significa que fechou certinho na barra 12m.
+      
+      if (sobra > 0) {
+        // Se a sobra for um retalho inutilizável, cobra a barra cheia.
+        if (tipo === "1/2") {
+          // A de 1/2" é a pior. Se a sobra final for menor que 6m, descarta e cobra a de 12m.
+          if (sobra < 6) metrosComFolga += sobra;
+        } else if (tipo === "3/8" || tipo === "5/16") {
+          // As de 3/8" e 5/16" não dá pra fazer nada se sobrar só 1m ou 1.5m. Cobra de 12m.
+          if (sobra <= 1.5) metrosComFolga += sobra;
+        }
+      }
       
       return { 
-        metros: metrosFechadosComercial, 
-        barras: qtBarrasInteiras 
+        metros: metrosComFolga, 
+        barras: (metrosComFolga / CONFIG.TAMANHO_BARRA_M) 
       };
     }
 
@@ -554,8 +576,8 @@
       let consumoFerro = calcularConsumo(tipoFerro, totMetros);
       
       log += `>> Consumo Comercial em Barras (com ${(CONFIG.FATOR_FOLGA - 1)*100}% de folga):\n`;
-      log += `   - Métrica quebrada c/ folga: ${(totMetros * CONFIG.FATOR_FOLGA).toFixed(2)} m\n`;
-      log += `   - Arredondando p/ teto comercial da barra de 12m (x${consumoFerro.barras} barras): ${consumoFerro.metros.toFixed(2)} m\n\n`;
+      log += `   - Métrica linear bruta c/ folga: ${(totMetros * CONFIG.FATOR_FOLGA).toFixed(2)} m\n`;
+      log += `   - Arredondamento Ajustado ao Retalho Real da Barra (${consumoFerro.barras.toFixed(5)} barras): ${consumoFerro.metros.toFixed(2)} m\n\n`;
 
       let consumoMap = { [tipoFerro]: consumoFerro };
       renderizarResumoFinal(consumoMap, amarracaoM, log, "Sapata", "Sapata");
