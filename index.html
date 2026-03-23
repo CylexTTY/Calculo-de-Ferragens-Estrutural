@@ -222,6 +222,7 @@
                   <option value="30" selected>30 cm</option>
                   <option value="20">20 cm</option>
                   <option value="15">15 cm</option>
+                  <option value="12">12 cm</option>
                   <option value="10">10 cm</option>
                 </select>
               </div>
@@ -358,17 +359,15 @@
     function calcularConsumo(tipo, metros, isFerroEstribo = false) {
       let metrosComFolga = metros * CONFIG.FATOR_FOLGA;
       
-      // Inteligência de Arredondamento de Ferragem Principal (Reduz Desperdício)
-      if (!isFerroEstribo) {
-        if (tipo === "1/4") {
+      // Inteligência de Arredondamento (Aplica a todos os ferros e bitolas para fechar em metragens comercias)
+      if (tipo === "1/4" || tipo === "3/16") {
+        metrosComFolga = Math.ceil(metrosComFolga);
+      } else if (["3/8", "5/16", "1/2"].includes(tipo)) {
+        let resto = metrosComFolga % 1;
+        if (resto > 0 && resto < 0.5) {
+          metrosComFolga = Math.floor(metrosComFolga) + 0.5;
+        } else if (resto >= 0.5 && resto < 1) {
           metrosComFolga = Math.ceil(metrosComFolga);
-        } else if (["3/8", "5/16", "1/2"].includes(tipo)) {
-          let resto = metrosComFolga % 1;
-          if (resto > 0 && resto < 0.5) {
-            metrosComFolga = Math.floor(metrosComFolga) + 0.5;
-          } else if (resto >= 0.5 && resto < 1) {
-            metrosComFolga = Math.ceil(metrosComFolga);
-          }
         }
       }
       return { 
@@ -490,7 +489,8 @@
       // Mantendo a constância original do projeto para os espaçamentos históricos
       let estribosP_Metro = espacamento === 30 ? 3.33333333 : 
                             espacamento === 20 ? 5 : 
-                            espacamento === 15 ? 7 : 10;
+                            espacamento === 15 ? 7 : 
+                            espacamento === 12 ? 8.33333333 : 10;
       let totalEst_m = compEstribo_m * estribosP_Metro;
       
       log += ">> Estribos:\n";
